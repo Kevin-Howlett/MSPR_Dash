@@ -406,8 +406,8 @@ def main():
         # Dropping outliers
         treatoutliers(mspr_plotting, columns = ['GPA_HIGH_SCHOOL', 'TOTAL_FUNDS'])
 
-        st.write(mspr_plotting.columns)
-        st.write(mspr_old.columns)
+        st.write(mspr_plotting)
+        st.write(mspr_old)
 
 
         #st.write(mspr_plotting)
