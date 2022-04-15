@@ -398,6 +398,7 @@ def main():
 
         # Store variable with current term
         current_term = mspr_plotting.TERM.max()
+        st.write(current_term)
 
         # Store new dfs for plotting MSPR where completed
         mspr_current = mspr_plotting.loc[(mspr_plotting.MSPR_COMPL_IND == 1) & (mspr_plotting.TERM == current_term)]
