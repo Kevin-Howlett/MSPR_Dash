@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import os
+import re
 import plotly.express as px
 from io import StringIO
 import datetime
@@ -44,18 +45,50 @@ def main():
     st.sidebar.title("Data Upload")
 
     
-
-    mspr_file = st.sidebar.file_uploader("Upload MSPR course file:", key=1)
+    # File uploaders
+    mspr_file = st.sidebar.file_uploader("Upload MSPR file:", key=1)
     if mspr_file:
          # Can be used wherever a "file-like" object is accepted:
-         mspr_bycourse = load_data(mspr_file)
+         mspr = load_data(mspr_file)
          #st.write(dataframe)
 
-    mspr_file2 = st.sidebar.file_uploader("Upload MSPR contract file:", key=2)
-    if mspr_file2:
+    course_desig_file = st.sidebar.file_uploader("Upload Course Designations file:", key=2)
+    if course_desig_file:
          # Can be used wherever a "file-like" object is accepted:
-         mspr_bycontract = load_data(mspr_file2)
+         course_desig = load_data(course_desig_file)
          #st.write(dataframe)
+
+    scholarships_file = st.sidebar.file_uploader("Upload Scholarships file:", key=3)
+    if scholarships_file:
+         # Can be used wherever a "file-like" object is accepted:
+         scholarships = load_data(scholarships_file)
+         #st.write(dataframe)
+
+    gpa_file = st.sidebar.file_uploader("Upload GPAs file:", key=4)
+    if gpa_file:
+         # Can be used wherever a "file-like" object is accepted:
+         gpas = load_data(gpa_file)
+         #st.write(dataframe)
+
+    sat_file = st.sidebar.file_uploader("Upload SAT/ACT file:", key=5)
+    if sat_file:
+         # Can be used wherever a "file-like" object is accepted:
+         sat_act = load_data(sat_file)
+         #st.write(dataframe)
+
+    tests_file = st.sidebar.file_uploader("Upload AP-IB-AICE file:", key=6)
+    if tests_file:
+         # Can be used wherever a "file-like" object is accepted:
+         tests = load_data(tests_file)
+         #st.write(dataframe)
+
+    rank_file = st.sidebar.file_uploader("Upload HS Ranks file:", key=7)
+    if rank_file:
+         # Can be used wherever a "file-like" object is accepted:
+         rank = load_data(rank_file)
+         #st.write(dataframe)
+
+
 
 
     # Analysis button
@@ -64,16 +97,306 @@ def main():
     if run_analysis:
         st.session_state.button_pressed = True
 
-    if not mspr_file or not mspr_file2 or not run_analysis:
+    if not mspr_file or not course_desig_file or not scholarships_file or not gpa_file or not sat_file or not tests_file or not rank_file or not run_analysis:
         st.markdown("### Text describing dataset schemas/formats will go here")
         st.markdown("texttexttexttexttextext")
         st.markdown("blahblahblahblah")
 
 
     # ======================== #
-    # Output after running analysis
+    # Code to run after all files uploaded and user hit "Run Analysis" button
 
-    if st.session_state['button_pressed'] and mspr_file2 and mspr_file:
+    if st.session_state['button_pressed'] and mspr_file2 and course_desig_file and scholarships_file and gpa_file and sat_file and tests_file and rank_file:
+
+        # Munging MSPR data
+
+        mspr.rename(columns={"STUDENT_ID":"ID"}, inplace=True)
+
+		# Encoding indicators as binary, 0 or 1
+		mspr['MSPR_COMPL_IND'] = np.where(mspr['MSPR_COMPL_IND'] == "Y", 1, 0)
+
+		mspr['NO CONCERNS'] = np.where(mspr['NO CONCERNS'] == "Y", 1, 0)
+
+		mspr['ATTENDANCE'] = np.where(mspr['ATTENDANCE'] == "Y", 1, 0)
+
+		mspr['LOW PARTICIPATION'] = np.where(mspr['LOW PARTICIPATION'] == "Y", 1, 0)
+
+		mspr['LATE/MISSING ASSIGNMENTS'] = np.where(mspr['LATE/MISSING ASSIGNMENTS'] == "Y", 1, 0)
+
+		mspr['OTHER ASSIGNMENTS CONCERNS'] = np.where(mspr['OTHER ASSIGNMENTS CONCERNS'] == "Y", 1, 0)
+
+		mspr['LOW TEST SCORES'] = np.where(mspr['LOW TEST SCORES'] == "Y", 1, 0)
+
+		mspr['DANGER of UNSATING'] = np.where(mspr['DANGER of UNSATING'] == "Y", 1, 0)
+
+		mspr['COMMENT TEXT'] = np.where(mspr['COMMENT TEXT'] == "Y", 1, 0)
+
+		# Calculating contract criteria percent
+		mspr['contract_criteria_percent'] = mspr['CRITERIA'].str.extract('([0-9]+\.?[0-9]?\s?\/\s?[0-9]\.?[0-9]?)')
+
+		mspr['contract_criteria_percent'] = mspr['contract_criteria_percent'].str.split('/').str[0].astype(float)/mspr['contract_criteria_percent'].str.split('/').str[1].astype(float)
+
+		mspr.rename(columns={'ID':"STUDENT_ID"}, inplace=True)
+
+		# mspr.tail()
+
+
+		# ======================== #
+
+		# Munging Course Designations data
+
+		# Extract course_level from CRS_NUMB
+		course_desig['COURSE_LEVEL'] = [int(str(x)[0]) for x in course_desig.CRS_NUMB.tolist()]
+		# Group course_level 5 & 6 values in with 4
+		course_desig['COURSE_LEVEL'] = np.where(course_desig['COURSE_LEVEL'].gt(4), 4, course_desig['COURSE_LEVEL'])
+
+		# Create Dummies for Course Divisions
+		top_n = ['New College Of Florida', 'Humanities', 'Natural Science', 'Other', 'Social Sciences']
+		course_desig['CRS_DIVS_DESC'] = np.where(course_desig['CRS_DIVS_DESC'].isin(top_n), course_desig['CRS_DIVS_DESC'], "Other")
+
+		# Encode CRS_DIVS_DESC as one-hot variables
+		for n in top_n:
+		    dummy_colname = n.replace(" ", "_")
+		    dummy_colname = "DIVS_" + dummy_colname
+		    course_desig[dummy_colname] = np.where(course_desig['CRS_DIVS_DESC'] == n, 1, 0)
+		    
+		# Drop Divison column after dummies have been created
+		course_desig.drop(columns = "CRS_DIVS_DESC", inplace = True)
+
+
+		### CONTRACT DESIGNATIONS  SECTION ###
+
+		# extract contract number
+		contract_desig = course_desig.loc[course_desig['CLASS_TITLE'].str.contains('Contract ')]
+		contract_desig['contract_number'] = contract_desig['CLASS_TITLE'].str.extract('(\d+)')[0]
+
+		course_desig = course_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID',
+		                            'ACAD_HIST_GRDE_DESC':'course_grade'})
+
+		course_desig = course_desig[['STUDENT_ID','TERM','CRN', 'COURSE_LEVEL', 'course_grade',
+		                            'DIVS_New_College_Of_Florida', 'DIVS_Humanities',
+		                            'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences']]
+
+		contract_desig = contract_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID'})
+		contract_desig = contract_desig[['STUDENT_ID','TERM','contract_number']]
+		contract_desig = contract_desig.drop_duplicates(subset=['STUDENT_ID','TERM'])
+
+		# contract_desig.tail()
+        
+
+        # ======================= #
+
+        # Munging Scholarships data
+
+        scholarships.rename(columns={'TermCode':'TERM', 'SPRIDEN_ID':'STUDENT_ID'}, inplace=True)
+		# Filter to only accepted scholarships
+		scholarships = scholarships[~scholarships['Accept_Date'].isna()]
+
+		# Group and sum scholarships by term/student
+		final_scholarships = scholarships.groupby(["STUDENT_ID", 'TERM'])['FORMATTED_PAID_AMT'].agg(sum).reset_index(name='TOTAL_FUNDS')
+
+		# final_scholarships.tail()
+
+
+
+        # ======================= #
+
+        # Munging GPA data
+
+		gpas = gpas.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
+
+        
+        # ======================= #
+
+        # Munging SAT/ACT data
+
+        filter_tests = ['AE', 'ARE', 'AS', 'AM',
+               'S2M','S2RW']
+		sat_act = sat_act.loc[sat_act.TEST_CODE.isin(filter_tests)]
+
+		cats = {'TEST_CODE':{
+		    'AE': 'ACT',
+		    'ARE': 'ACT',
+		    'AS': 'ACT',
+		    'AM': 'ACT',
+		    'S2M': 'SAT',
+		    'S2RW': 'SAT'
+		}}
+
+		sat_act = sat_act.replace(cats)
+
+		act = sat_act.loc[sat_act.TEST_CODE=='ACT']
+
+		# Store student/demo_time pairs with less than 4 ACT scores
+		grouped_act = act.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
+		to_remove = grouped_act.loc[grouped_act[0] <4][['DEMO_TIME_FRAME','SPRIDEN_ID']]
+
+		act = act.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
+
+		# Remove student/time pairs with less than 4 ACT scores
+		act = pd.merge(act, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
+		        how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
+
+		# Take highest score
+		# Could sub for highest or average
+		act = act.loc[act.groupby('SPRIDEN_ID').TEST_SCORE_N.idxmax()]
+		act['TEST_SCORE_N'] = round(act['TEST_SCORE_N']/4)
+
+		# Safe guard so no scores are under 9
+		act = act.loc[act.TEST_SCORE_N>=9]
+
+		encodings = {'TEST_SCORE_N': {
+		    36 : 1590, 35 : 1540, 34 : 1500,
+		    33 : 1460, 32 : 1430, 31 : 1400, 
+		    30 : 1370, 29 : 1340, 28 : 1310,
+		    27 : 1280, 26 : 1240, 25 : 1210,
+		    24 : 1180, 23 : 1140, 22 : 1110,
+		    21 : 1080, 20 : 1040, 19 : 1010,
+		    18 : 970, 17 : 930, 16 : 890,
+		    15 : 850, 14 : 800, 13 : 760,
+		    12 : 710, 11 : 670, 10 : 630,
+		    9 : 590    
+		}}
+
+		act = act.replace(encodings)
+
+		sat = sat_act.loc[sat_act.TEST_CODE=="SAT"]
+
+		# Store student/demo_time pairs with less than 2 SAT scores
+		grouped_sat = sat.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
+		to_remove = grouped_sat.loc[grouped_sat[0] <2][['DEMO_TIME_FRAME','SPRIDEN_ID']]
+
+		sat = sat.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
+
+		# Remove student/time pairs with less than 2 SAT scores
+		sat = pd.merge(sat, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
+		        how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
+
+		# Take latest score
+		# Could sub for highest or average
+		sat = sat.loc[sat.groupby('SPRIDEN_ID').DEMO_TIME_FRAME.idxmax()]
+
+		sat_final = pd.concat([sat,act])
+
+		sat_final = sat_final.groupby('SPRIDEN_ID').max('TEST_SCORE_N').reset_index()
+
+		sat_final = sat_final.drop('DEMO_TIME_FRAME',axis=1)
+
+		sat_final = sat_final.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
+
+		# sat_final.tail()
+
+
+
+        # ======================= #
+
+        # Munging AP/IB/AICE data
+
+        tests.rename(columns={'SPRIDEN_ID':'STUDENT_ID','SWVLACC_CLASS_TITLE':'AP_IB_CLASS_TITLE', 'AICE/AP/IB Indicator':'AP_IB_TEST_FLAG'},inplace=True)
+		tests['AP_IB_TEST_FLAG'] = np.where(tests['AP_IB_TEST_FLAG'] == "Y", 1,0)
+		tests = tests[tests['AP_IB_CLASS_TITLE'].str.contains(pat="AP|IB|AICE")]
+		tests = tests.drop_duplicates(subset=['STUDENT_ID'])
+		tests.drop(columns="AP_IB_CLASS_TITLE", inplace=True)
+		# tests.tail()
+
+		# ======================= #
+
+        # Munging HS Rank data
+
+        rank.rename(columns={'SPRIDEN_ID': 'STUDENT_ID'}, inplace=True)
+		rank.drop_duplicates(inplace=True)
+
+		rank["RANK_PERCENTILE"] = 1-(rank['SORHSCH_CLASS_RANK']/rank['SORHSCH_CLASS_SIZE'])
+
+		rank = rank[['STUDENT_ID','RANK_PERCENTILE']]
+		# rank.tail()
+
+
+		# ======================= #
+
+		# Combinging dfs
+
+		mspr = pd.merge(mspr, course_desig, on=['STUDENT_ID','TERM','CRN'], how="left")
+
+        mspr = pd.merge(mspr, contract_desig, on=['STUDENT_ID','TERM'], how="left")
+
+        mspr = pd.merge(mspr, final_scholarships, on=['STUDENT_ID','TERM'], how="left")
+
+        mspr = pd.merge(mspr, rank, on=['STUDENT_ID'], how="left")
+
+        mspr = pd.merge(mspr, tests, on=['STUDENT_ID'], how="left")
+
+        mspr = pd.merge(mspr, sat_final, on=['STUDENT_ID'], how="left")
+
+        mspr = pd.merge(mspr, gpas, on=['STUDENT_ID'], how="left")
+
+        mspr = mspr.replace({'TRM_DESC': {'1':1, '1MC':0.5, 'M1':0.5}})
+
+        # Calculate class per student/semester pair
+        mspr['total_classes'] = mspr.groupby(['TERM','STUDENT_ID'])['TRM_DESC'].transform('sum')
+
+        # Impute students without AP/IB and scholarships with 0
+        mspr['AP_IB_TEST_FLAG'] = mspr['AP_IB_TEST_FLAG'].fillna(0)
+        mspr['TOTAL_FUNDS'] = mspr['TOTAL_FUNDS'].fillna(0)
+
+
+        # Course-level dataframe
+        features = ['STUDENT_ID','CRN','TERM', 'MSPR_COMPL_IND','TITLE','INSTRUCTOR',
+       'ATTENDANCE', 'LOW PARTICIPATION', 'LATE/MISSING ASSIGNMENTS',
+       'OTHER ASSIGNMENTS CONCERNS', 'LOW TEST SCORES', 'DANGER of UNSATING',
+       'contract_criteria_percent',
+       'contract_number', 'TOTAL_FUNDS', 'RANK_PERCENTILE',
+       'AP_IB_TEST_FLAG', 'TEST_SCORE_N', 'GPA_HIGH_SCHOOL', 'total_classes',
+       'COURSE_LEVEL', 'DIVS_Humanities',
+       'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences']
+
+        mspr_bycourse = mspr[features]
+
+        # Contract-level aggregation
+        mspr_bycontract = mspr_bycourse.drop(columns = ['CRN','TITLE','INSTRUCTOR']).groupby(['STUDENT_ID','TERM']).agg({
+                                                           'MSPR_COMPL_IND':'sum',
+                                                           'ATTENDANCE':'sum',
+                                                           'LOW PARTICIPATION':'sum',
+                                                           'LATE/MISSING ASSIGNMENTS':'sum',
+                                                           'OTHER ASSIGNMENTS CONCERNS':'sum',
+                                                           'LOW TEST SCORES':'sum',
+                                                           'DANGER of UNSATING':'sum',
+                                                           'contract_criteria_percent':'max',
+                                                           'contract_number':'max',
+                                                           'TOTAL_FUNDS':'max',
+                                                            'RANK_PERCENTILE':'max',
+                                                            'AP_IB_TEST_FLAG':'max',
+                                                            'TEST_SCORE_N':'max',
+                                                            'GPA_HIGH_SCHOOL':'max',
+                                                            'total_classes':'max',
+                                                            'COURSE_LEVEL':'mean',
+                                                            'DIVS_Humanities':'sum',
+                                                            'DIVS_Natural_Science':'sum',
+                                                            'DIVS_Other':'sum',
+                                                            'DIVS_Social_Sciences':'sum',                                                    
+                                                                                                     }).reset_index()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # ==================================================== #
+
+        # Preparing MSPR course df for plotting
 
         st.write('Analysis Complete!')
 
@@ -97,6 +420,12 @@ def main():
 
         #st.write(mspr_plotting)
         #st.write(mspr_current)
+
+
+
+
+        # ==================================================== #
+
 
 
         # Plotting
@@ -188,7 +517,7 @@ def main():
         # mspr_plotting = mspr_plotting.loc[mspr_plotting.TERM.isin(terms)]
 
         # Aggregate to term-level (for each student)for plotting changes each term
-        mspr_term_level = mspr_plotting[['IR_ID','TERM','TOTAL_FUNDS','RANK_PERCENTILE','GPA_HIGH_SCHOOL','TEST_SCORE_N']].groupby(['IR_ID','TERM']).agg({
+        mspr_term_level = mspr_plotting[['STUDENT_ID','TERM','TOTAL_FUNDS','RANK_PERCENTILE','GPA_HIGH_SCHOOL','TEST_SCORE_N']].groupby(['STUDENT_ID','TERM']).agg({
             'TOTAL_FUNDS':'max',
             'RANK_PERCENTILE':'max',
             'GPA_HIGH_SCHOOL':'max',
@@ -374,7 +703,11 @@ def main():
 
 
 
-        # ======================== #
+
+        # ==================================================== #
+
+        # LightGBM predictions
+
         # Imputing for predictions
 
         # Subset current term for prediction
@@ -383,14 +716,14 @@ def main():
 
 
         # Subset features
-        mspr_course_current = mspr_course_current[['IR_ID', 'CRN', 'TERM', 'MSPR_COMPL_IND', 'ATTENDANCE', 
+        mspr_course_current = mspr_course_current[['STUDENT_ID', 'CRN', 'TERM', 'MSPR_COMPL_IND', 'ATTENDANCE', 
         'LOW PARTICIPATION', 'LATE/MISSING ASSIGNMENTS', 'OTHER ASSIGNMENTS CONCERNS', 
         'LOW TEST SCORES', 'DANGER of UNSATING', 'contract_criteria_percent', 
         'contract_number', 'TOTAL_FUNDS', 'RANK_PERCENTILE', 'AP_IB_TEST_FLAG', 'TEST_SCORE_N',
         'GPA_HIGH_SCHOOL', 'total_classes' ,'COURSE_LEVEL', 'DIVS_Humanities', 
-        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'course_grade']]
+        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'course_grade', 'TITLE','INSTRUCTOR']]
 
-        mspr_contract_current = mspr_contract_current[['IR_ID', 'TERM', 'MSPR_COMPL_IND', 'ATTENDANCE', 
+        mspr_contract_current = mspr_contract_current[['STUDENT_ID', 'TERM', 'MSPR_COMPL_IND', 'ATTENDANCE', 
         'LOW PARTICIPATION', 'LATE/MISSING ASSIGNMENTS', 'OTHER ASSIGNMENTS CONCERNS', 
         'LOW TEST SCORES', 'DANGER of UNSATING', 'contract_criteria_percent', 
         'contract_number', 'TOTAL_FUNDS', 'RANK_PERCENTILE', 'AP_IB_TEST_FLAG', 'TEST_SCORE_N',
@@ -398,11 +731,11 @@ def main():
         'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'contract_grade']]
 
         # Take IDs for prediction output
-        mspr_course_ids = mspr_course_current[['IR_ID','CRN']]
-        mspr_contract_ids = mspr_contract_current[['IR_ID']]
+        mspr_course_ids = mspr_course_current[['STUDENT_ID','CRN','TITLE','INSTRUCTOR']]
+        mspr_contract_ids = mspr_contract_current[['STUDENT_ID']]
 
-        mspr_course_current = mspr_course_current.drop(columns=['IR_ID','CRN','TERM','course_grade'])
-        mspr_contract_current = mspr_contract_current.drop(columns=['IR_ID','TERM','contract_grade'])
+        mspr_course_current = mspr_course_current.drop(columns=['STUDENT_ID','CRN','TERM','course_grade','TITLE','INSTRUCTOR'])
+        mspr_contract_current = mspr_contract_current.drop(columns=['STUDENT_ID','TERM','contract_grade'])
 
 
 
@@ -467,6 +800,7 @@ def main():
         mspr_contract_csv = mspr_contract_ids.to_csv(index=False).encode('utf-8')
 
 
+        # Download buttons
         st.write('### Download Predictions')
         course_download = st.download_button(
             "Download Course-Level",
