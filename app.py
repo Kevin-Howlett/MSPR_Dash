@@ -821,7 +821,6 @@ def main():
 
 # Functions
 
-@st.cache(hash_funcs={StringIO: StringIO.getvalue}, suppress_st_warning=True)
 def load_data(file_uploaded):
     if file_uploaded.name.split('.')[1] == 'csv':
         return pd.read_csv(file_uploaded, sep=',', encoding='utf-8')
