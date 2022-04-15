@@ -112,76 +112,76 @@ def main():
 
         mspr.rename(columns={"STUDENT_ID":"ID"}, inplace=True)
 
-		# Encoding indicators as binary, 0 or 1
-		mspr['MSPR_COMPL_IND'] = np.where(mspr['MSPR_COMPL_IND'] == "Y", 1, 0)
+        # Encoding indicators as binary, 0 or 1
+        mspr['MSPR_COMPL_IND'] = np.where(mspr['MSPR_COMPL_IND'] == "Y", 1, 0)
 
-		mspr['NO CONCERNS'] = np.where(mspr['NO CONCERNS'] == "Y", 1, 0)
+        mspr['NO CONCERNS'] = np.where(mspr['NO CONCERNS'] == "Y", 1, 0)
 
-		mspr['ATTENDANCE'] = np.where(mspr['ATTENDANCE'] == "Y", 1, 0)
+        mspr['ATTENDANCE'] = np.where(mspr['ATTENDANCE'] == "Y", 1, 0)
 
-		mspr['LOW PARTICIPATION'] = np.where(mspr['LOW PARTICIPATION'] == "Y", 1, 0)
+        mspr['LOW PARTICIPATION'] = np.where(mspr['LOW PARTICIPATION'] == "Y", 1, 0)
 
-		mspr['LATE/MISSING ASSIGNMENTS'] = np.where(mspr['LATE/MISSING ASSIGNMENTS'] == "Y", 1, 0)
+        mspr['LATE/MISSING ASSIGNMENTS'] = np.where(mspr['LATE/MISSING ASSIGNMENTS'] == "Y", 1, 0)
 
-		mspr['OTHER ASSIGNMENTS CONCERNS'] = np.where(mspr['OTHER ASSIGNMENTS CONCERNS'] == "Y", 1, 0)
+        mspr['OTHER ASSIGNMENTS CONCERNS'] = np.where(mspr['OTHER ASSIGNMENTS CONCERNS'] == "Y", 1, 0)
 
-		mspr['LOW TEST SCORES'] = np.where(mspr['LOW TEST SCORES'] == "Y", 1, 0)
+        mspr['LOW TEST SCORES'] = np.where(mspr['LOW TEST SCORES'] == "Y", 1, 0)
 
-		mspr['DANGER of UNSATING'] = np.where(mspr['DANGER of UNSATING'] == "Y", 1, 0)
+        mspr['DANGER of UNSATING'] = np.where(mspr['DANGER of UNSATING'] == "Y", 1, 0)
 
-		mspr['COMMENT TEXT'] = np.where(mspr['COMMENT TEXT'] == "Y", 1, 0)
+        mspr['COMMENT TEXT'] = np.where(mspr['COMMENT TEXT'] == "Y", 1, 0)
 
-		# Calculating contract criteria percent
-		mspr['contract_criteria_percent'] = mspr['CRITERIA'].str.extract('([0-9]+\.?[0-9]?\s?\/\s?[0-9]\.?[0-9]?)')
+        # Calculating contract criteria percent
+        mspr['contract_criteria_percent'] = mspr['CRITERIA'].str.extract('([0-9]+\.?[0-9]?\s?\/\s?[0-9]\.?[0-9]?)')
 
-		mspr['contract_criteria_percent'] = mspr['contract_criteria_percent'].str.split('/').str[0].astype(float)/mspr['contract_criteria_percent'].str.split('/').str[1].astype(float)
+        mspr['contract_criteria_percent'] = mspr['contract_criteria_percent'].str.split('/').str[0].astype(float)/mspr['contract_criteria_percent'].str.split('/').str[1].astype(float)
 
-		mspr.rename(columns={'ID':"STUDENT_ID"}, inplace=True)
+        mspr.rename(columns={'ID':"STUDENT_ID"}, inplace=True)
 
-		# mspr.tail()
-
-
-		# ======================== #
-
-		# Munging Course Designations data
-
-		# Extract course_level from CRS_NUMB
-		course_desig['COURSE_LEVEL'] = [int(str(x)[0]) for x in course_desig.CRS_NUMB.tolist()]
-		# Group course_level 5 & 6 values in with 4
-		course_desig['COURSE_LEVEL'] = np.where(course_desig['COURSE_LEVEL'].gt(4), 4, course_desig['COURSE_LEVEL'])
-
-		# Create Dummies for Course Divisions
-		top_n = ['New College Of Florida', 'Humanities', 'Natural Science', 'Other', 'Social Sciences']
-		course_desig['CRS_DIVS_DESC'] = np.where(course_desig['CRS_DIVS_DESC'].isin(top_n), course_desig['CRS_DIVS_DESC'], "Other")
-
-		# Encode CRS_DIVS_DESC as one-hot variables
-		for n in top_n:
-		    dummy_colname = n.replace(" ", "_")
-		    dummy_colname = "DIVS_" + dummy_colname
-		    course_desig[dummy_colname] = np.where(course_desig['CRS_DIVS_DESC'] == n, 1, 0)
-		    
-		# Drop Divison column after dummies have been created
-		course_desig.drop(columns = "CRS_DIVS_DESC", inplace = True)
+        # mspr.tail()
 
 
-		### CONTRACT DESIGNATIONS  SECTION ###
+        # ======================== #
 
-		# extract contract number
-		contract_desig = course_desig.loc[course_desig['CLASS_TITLE'].str.contains('Contract ')]
-		contract_desig['contract_number'] = contract_desig['CLASS_TITLE'].str.extract('(\d+)')[0]
+        # Munging Course Designations data
 
-		course_desig = course_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID',
-		                            'ACAD_HIST_GRDE_DESC':'course_grade'})
+        # Extract course_level from CRS_NUMB
+        course_desig['COURSE_LEVEL'] = [int(str(x)[0]) for x in course_desig.CRS_NUMB.tolist()]
+        # Group course_level 5 & 6 values in with 4
+        course_desig['COURSE_LEVEL'] = np.where(course_desig['COURSE_LEVEL'].gt(4), 4, course_desig['COURSE_LEVEL'])
 
-		course_desig = course_desig[['STUDENT_ID','TERM','CRN', 'COURSE_LEVEL', 'course_grade',
-		                            'DIVS_New_College_Of_Florida', 'DIVS_Humanities',
-		                            'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences']]
+        # Create Dummies for Course Divisions
+        top_n = ['New College Of Florida', 'Humanities', 'Natural Science', 'Other', 'Social Sciences']
+        course_desig['CRS_DIVS_DESC'] = np.where(course_desig['CRS_DIVS_DESC'].isin(top_n), course_desig['CRS_DIVS_DESC'], "Other")
 
-		contract_desig = contract_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID'})
-		contract_desig = contract_desig[['STUDENT_ID','TERM','contract_number']]
-		contract_desig = contract_desig.drop_duplicates(subset=['STUDENT_ID','TERM'])
+        # Encode CRS_DIVS_DESC as one-hot variables
+        for n in top_n:
+            dummy_colname = n.replace(" ", "_")
+            dummy_colname = "DIVS_" + dummy_colname
+            course_desig[dummy_colname] = np.where(course_desig['CRS_DIVS_DESC'] == n, 1, 0)
+            
+        # Drop Divison column after dummies have been created
+        course_desig.drop(columns = "CRS_DIVS_DESC", inplace = True)
 
-		# contract_desig.tail()
+
+        ### CONTRACT DESIGNATIONS  SECTION ###
+
+        # extract contract number
+        contract_desig = course_desig.loc[course_desig['CLASS_TITLE'].str.contains('Contract ')]
+        contract_desig['contract_number'] = contract_desig['CLASS_TITLE'].str.extract('(\d+)')[0]
+
+        course_desig = course_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID',
+                                    'ACAD_HIST_GRDE_DESC':'course_grade'})
+
+        course_desig = course_desig[['STUDENT_ID','TERM','CRN', 'COURSE_LEVEL', 'course_grade',
+                                    'DIVS_New_College_Of_Florida', 'DIVS_Humanities',
+                                    'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences']]
+
+        contract_desig = contract_desig.rename(columns={'SQ_COUNT_STUDENT_ID':'STUDENT_ID'})
+        contract_desig = contract_desig[['STUDENT_ID','TERM','contract_number']]
+        contract_desig = contract_desig.drop_duplicates(subset=['STUDENT_ID','TERM'])
+
+        # contract_desig.tail()
         
 
         # ======================= #
@@ -189,13 +189,13 @@ def main():
         # Munging Scholarships data
 
         scholarships.rename(columns={'TermCode':'TERM', 'SPRIDEN_ID':'STUDENT_ID'}, inplace=True)
-		# Filter to only accepted scholarships
-		scholarships = scholarships[~scholarships['Accept_Date'].isna()]
+        # Filter to only accepted scholarships
+        scholarships = scholarships[~scholarships['Accept_Date'].isna()]
 
-		# Group and sum scholarships by term/student
-		final_scholarships = scholarships.groupby(["STUDENT_ID", 'TERM'])['FORMATTED_PAID_AMT'].agg(sum).reset_index(name='TOTAL_FUNDS')
+        # Group and sum scholarships by term/student
+        final_scholarships = scholarships.groupby(["STUDENT_ID", 'TERM'])['FORMATTED_PAID_AMT'].agg(sum).reset_index(name='TOTAL_FUNDS')
 
-		# final_scholarships.tail()
+        # final_scholarships.tail()
 
 
 
@@ -203,7 +203,7 @@ def main():
 
         # Munging GPA data
 
-		gpas = gpas.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
+        gpas = gpas.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
 
         
         # ======================= #
@@ -212,79 +212,79 @@ def main():
 
         filter_tests = ['AE', 'ARE', 'AS', 'AM',
                'S2M','S2RW']
-		sat_act = sat_act.loc[sat_act.TEST_CODE.isin(filter_tests)]
+        sat_act = sat_act.loc[sat_act.TEST_CODE.isin(filter_tests)]
 
-		cats = {'TEST_CODE':{
-		    'AE': 'ACT',
-		    'ARE': 'ACT',
-		    'AS': 'ACT',
-		    'AM': 'ACT',
-		    'S2M': 'SAT',
-		    'S2RW': 'SAT'
-		}}
+        cats = {'TEST_CODE':{
+            'AE': 'ACT',
+            'ARE': 'ACT',
+            'AS': 'ACT',
+            'AM': 'ACT',
+            'S2M': 'SAT',
+            'S2RW': 'SAT'
+        }}
 
-		sat_act = sat_act.replace(cats)
+        sat_act = sat_act.replace(cats)
 
-		act = sat_act.loc[sat_act.TEST_CODE=='ACT']
+        act = sat_act.loc[sat_act.TEST_CODE=='ACT']
 
-		# Store student/demo_time pairs with less than 4 ACT scores
-		grouped_act = act.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
-		to_remove = grouped_act.loc[grouped_act[0] <4][['DEMO_TIME_FRAME','SPRIDEN_ID']]
+        # Store student/demo_time pairs with less than 4 ACT scores
+        grouped_act = act.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
+        to_remove = grouped_act.loc[grouped_act[0] <4][['DEMO_TIME_FRAME','SPRIDEN_ID']]
 
-		act = act.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
+        act = act.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
 
-		# Remove student/time pairs with less than 4 ACT scores
-		act = pd.merge(act, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
-		        how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
+        # Remove student/time pairs with less than 4 ACT scores
+        act = pd.merge(act, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
+                how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
 
-		# Take highest score
-		# Could sub for highest or average
-		act = act.loc[act.groupby('SPRIDEN_ID').TEST_SCORE_N.idxmax()]
-		act['TEST_SCORE_N'] = round(act['TEST_SCORE_N']/4)
+        # Take highest score
+        # Could sub for highest or average
+        act = act.loc[act.groupby('SPRIDEN_ID').TEST_SCORE_N.idxmax()]
+        act['TEST_SCORE_N'] = round(act['TEST_SCORE_N']/4)
 
-		# Safe guard so no scores are under 9
-		act = act.loc[act.TEST_SCORE_N>=9]
+        # Safe guard so no scores are under 9
+        act = act.loc[act.TEST_SCORE_N>=9]
 
-		encodings = {'TEST_SCORE_N': {
-		    36 : 1590, 35 : 1540, 34 : 1500,
-		    33 : 1460, 32 : 1430, 31 : 1400, 
-		    30 : 1370, 29 : 1340, 28 : 1310,
-		    27 : 1280, 26 : 1240, 25 : 1210,
-		    24 : 1180, 23 : 1140, 22 : 1110,
-		    21 : 1080, 20 : 1040, 19 : 1010,
-		    18 : 970, 17 : 930, 16 : 890,
-		    15 : 850, 14 : 800, 13 : 760,
-		    12 : 710, 11 : 670, 10 : 630,
-		    9 : 590    
-		}}
+        encodings = {'TEST_SCORE_N': {
+            36 : 1590, 35 : 1540, 34 : 1500,
+            33 : 1460, 32 : 1430, 31 : 1400, 
+            30 : 1370, 29 : 1340, 28 : 1310,
+            27 : 1280, 26 : 1240, 25 : 1210,
+            24 : 1180, 23 : 1140, 22 : 1110,
+            21 : 1080, 20 : 1040, 19 : 1010,
+            18 : 970, 17 : 930, 16 : 890,
+            15 : 850, 14 : 800, 13 : 760,
+            12 : 710, 11 : 670, 10 : 630,
+            9 : 590    
+        }}
 
-		act = act.replace(encodings)
+        act = act.replace(encodings)
 
-		sat = sat_act.loc[sat_act.TEST_CODE=="SAT"]
+        sat = sat_act.loc[sat_act.TEST_CODE=="SAT"]
 
-		# Store student/demo_time pairs with less than 2 SAT scores
-		grouped_sat = sat.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
-		to_remove = grouped_sat.loc[grouped_sat[0] <2][['DEMO_TIME_FRAME','SPRIDEN_ID']]
+        # Store student/demo_time pairs with less than 2 SAT scores
+        grouped_sat = sat.groupby(['DEMO_TIME_FRAME','SPRIDEN_ID']).size().reset_index()
+        to_remove = grouped_sat.loc[grouped_sat[0] <2][['DEMO_TIME_FRAME','SPRIDEN_ID']]
 
-		sat = sat.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
+        sat = sat.groupby(['SPRIDEN_ID','DEMO_TIME_FRAME']).sum('TEST_SCORE_N').reset_index()
 
-		# Remove student/time pairs with less than 2 SAT scores
-		sat = pd.merge(sat, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
-		        how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
+        # Remove student/time pairs with less than 2 SAT scores
+        sat = pd.merge(sat, to_remove, on=['SPRIDEN_ID','DEMO_TIME_FRAME'], 
+                how='outer', indicator=True).query('_merge=="left_only"').drop('_merge',axis=1)
 
-		# Take latest score
-		# Could sub for highest or average
-		sat = sat.loc[sat.groupby('SPRIDEN_ID').DEMO_TIME_FRAME.idxmax()]
+        # Take latest score
+        # Could sub for highest or average
+        sat = sat.loc[sat.groupby('SPRIDEN_ID').DEMO_TIME_FRAME.idxmax()]
 
-		sat_final = pd.concat([sat,act])
+        sat_final = pd.concat([sat,act])
 
-		sat_final = sat_final.groupby('SPRIDEN_ID').max('TEST_SCORE_N').reset_index()
+        sat_final = sat_final.groupby('SPRIDEN_ID').max('TEST_SCORE_N').reset_index()
 
-		sat_final = sat_final.drop('DEMO_TIME_FRAME',axis=1)
+        sat_final = sat_final.drop('DEMO_TIME_FRAME',axis=1)
 
-		sat_final = sat_final.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
+        sat_final = sat_final.rename(columns={'SPRIDEN_ID':'STUDENT_ID'})
 
-		# sat_final.tail()
+        # sat_final.tail()
 
 
 
@@ -293,30 +293,30 @@ def main():
         # Munging AP/IB/AICE data
 
         tests.rename(columns={'SPRIDEN_ID':'STUDENT_ID','SWVLACC_CLASS_TITLE':'AP_IB_CLASS_TITLE', 'AICE/AP/IB Indicator':'AP_IB_TEST_FLAG'},inplace=True)
-		tests['AP_IB_TEST_FLAG'] = np.where(tests['AP_IB_TEST_FLAG'] == "Y", 1,0)
-		tests = tests[tests['AP_IB_CLASS_TITLE'].str.contains(pat="AP|IB|AICE")]
-		tests = tests.drop_duplicates(subset=['STUDENT_ID'])
-		tests.drop(columns="AP_IB_CLASS_TITLE", inplace=True)
-		# tests.tail()
+        tests['AP_IB_TEST_FLAG'] = np.where(tests['AP_IB_TEST_FLAG'] == "Y", 1,0)
+        tests = tests[tests['AP_IB_CLASS_TITLE'].str.contains(pat="AP|IB|AICE")]
+        tests = tests.drop_duplicates(subset=['STUDENT_ID'])
+        tests.drop(columns="AP_IB_CLASS_TITLE", inplace=True)
+        # tests.tail()
 
-		# ======================= #
+        # ======================= #
 
         # Munging HS Rank data
 
         rank.rename(columns={'SPRIDEN_ID': 'STUDENT_ID'}, inplace=True)
-		rank.drop_duplicates(inplace=True)
+        rank.drop_duplicates(inplace=True)
 
-		rank["RANK_PERCENTILE"] = 1-(rank['SORHSCH_CLASS_RANK']/rank['SORHSCH_CLASS_SIZE'])
+        rank["RANK_PERCENTILE"] = 1-(rank['SORHSCH_CLASS_RANK']/rank['SORHSCH_CLASS_SIZE'])
 
-		rank = rank[['STUDENT_ID','RANK_PERCENTILE']]
-		# rank.tail()
+        rank = rank[['STUDENT_ID','RANK_PERCENTILE']]
+        # rank.tail()
 
 
-		# ======================= #
+        # ======================= #
 
-		# Combinging dfs
+        # Combinging dfs
 
-		mspr = pd.merge(mspr, course_desig, on=['STUDENT_ID','TERM','CRN'], how="left")
+        mspr = pd.merge(mspr, course_desig, on=['STUDENT_ID','TERM','CRN'], how="left")
 
         mspr = pd.merge(mspr, contract_desig, on=['STUDENT_ID','TERM'], how="left")
 
