@@ -352,6 +352,10 @@ def main():
 
         mspr_bycourse = mspr[features]
 
+        features = features.append('NO CONCERNS')
+
+        mspr_bycourse2 = mspr[features]
+
         # Contract-level aggregation
         mspr_bycontract = mspr_bycourse.drop(columns = ['CRN','TITLE','INSTRUCTOR']).groupby(['STUDENT_ID','TERM']).agg({
                                                            'MSPR_COMPL_IND':'sum',
@@ -381,19 +385,6 @@ def main():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         # ==================================================== #
 
         # Preparing MSPR course df for plotting
@@ -402,7 +393,7 @@ def main():
 
 
         # MSPR Plotting DF
-        mspr_plotting = mspr_bycourse.copy()
+        mspr_plotting = mspr_bycourse2.copy()
 
         # Convert TERM to date type
         mspr_plotting['TERM'] = pd.to_datetime(mspr_plotting['TERM'], format='%Y%m', errors='coerce').dt.date
