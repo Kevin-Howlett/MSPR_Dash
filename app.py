@@ -99,7 +99,8 @@ def main():
 
     if not mspr_file or not course_desig_file or not scholarships_file or not gpa_file or not sat_file or not tests_file or not rank_file or not run_analysis:
         st.markdown("### Text describing dataset schemas/formats will go here")
-        st.markdown("texttexttexttexttextext")
+        table_schemas = open("Table_Schemas.txt", "r")
+        st.markdown(table_schemas.read())
         st.markdown("blahblahblahblah")
 
 
