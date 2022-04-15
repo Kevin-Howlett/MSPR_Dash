@@ -721,7 +721,7 @@ def main():
         'LOW TEST SCORES', 'DANGER of UNSATING', 'contract_criteria_percent', 
         'contract_number', 'TOTAL_FUNDS', 'RANK_PERCENTILE', 'AP_IB_TEST_FLAG', 'TEST_SCORE_N',
         'GPA_HIGH_SCHOOL', 'total_classes' ,'COURSE_LEVEL', 'DIVS_Humanities', 
-        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'contract_grade']]
+        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences']]
 
         # Take IDs for prediction output
         mspr_course_ids = mspr_course_current[['STUDENT_ID','CRN','TITLE','INSTRUCTOR']]
