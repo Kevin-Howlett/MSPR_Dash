@@ -1,0 +1,67 @@
+MSPR
+	
+	{
+		"ID"
+		"TERM"
+		"CRN"
+		"MSPR_COMPL_IND"
+		"NO CONCERNS"
+		"ATTENDANCE"
+		"LOW PARTICIPATION"
+		"LATE/MISSING ASSIGNMENTS"
+		"OTHER ASSIGNMENTS CONCERNS"
+		"LOW TEST SCORES"
+		"DANGER of UNSATING"
+		"CRITERIA"
+	}
+
+
+Course Designations
+
+	{
+		"SQ_COUNT_STUDENT_ID"
+		"TERM"
+		"CRN"
+		"CRS_NUMB"
+		"CRS_DIVS_DESC"
+		"ACAD_HIST_GRDE_DESC"
+	}
+
+AP/IB/AICE
+
+	{
+		"ID"
+		"SWVLACC_CLASS_TITLE"
+	}
+
+SAT/ACT
+
+	{
+		"DEMO_TIME_FRAME"
+		"ID"
+		"TEST_SCORE_N"
+	}
+
+GPA
+
+	{
+		"SPRIDEN_ID"
+		"GPA_HIGH_SCHOOL"
+	}
+
+Rank
+
+	{
+		"SPRIDEN_ID"
+		"SORHSCH_CLASS_RANK"
+		"SORHSCH_CLASS_SIZE"
+	}
+
+Scholarships
+
+	{
+		"TermCode"
+		"SPRIDEN_ID"
+		"Accept_Date"
+		"FORMATTED_PAID_AMT"
+	}
