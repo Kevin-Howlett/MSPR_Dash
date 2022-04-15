@@ -4,3 +4,4 @@ plotly
 streamlit
 lightgbm
 sklearn
+openpyxl
