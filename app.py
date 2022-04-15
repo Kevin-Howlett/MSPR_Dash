@@ -714,7 +714,7 @@ def main():
         'LOW TEST SCORES', 'DANGER of UNSATING', 'contract_criteria_percent', 
         'contract_number', 'TOTAL_FUNDS', 'RANK_PERCENTILE', 'AP_IB_TEST_FLAG', 'TEST_SCORE_N',
         'GPA_HIGH_SCHOOL', 'total_classes' ,'COURSE_LEVEL', 'DIVS_Humanities', 
-        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'course_grade', 'TITLE','INSTRUCTOR']]
+        'DIVS_Natural_Science', 'DIVS_Other', 'DIVS_Social_Sciences', 'TITLE','INSTRUCTOR']]
 
         mspr_contract_current = mspr_contract_current[['STUDENT_ID', 'TERM', 'MSPR_COMPL_IND', 'ATTENDANCE', 
         'LOW PARTICIPATION', 'LATE/MISSING ASSIGNMENTS', 'OTHER ASSIGNMENTS CONCERNS', 
@@ -727,8 +727,8 @@ def main():
         mspr_course_ids = mspr_course_current[['STUDENT_ID','CRN','TITLE','INSTRUCTOR']]
         mspr_contract_ids = mspr_contract_current[['STUDENT_ID']]
 
-        mspr_course_current = mspr_course_current.drop(columns=['STUDENT_ID','CRN','TERM','course_grade','TITLE','INSTRUCTOR'])
-        mspr_contract_current = mspr_contract_current.drop(columns=['STUDENT_ID','TERM','contract_grade'])
+        mspr_course_current = mspr_course_current.drop(columns=['STUDENT_ID','CRN','TERM','TITLE','INSTRUCTOR'])
+        mspr_contract_current = mspr_contract_current.drop(columns=['STUDENT_ID','TERM'])
 
 
 
