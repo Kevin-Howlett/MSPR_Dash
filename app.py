@@ -352,6 +352,8 @@ def main():
 
         mspr_bycourse = mspr[features]
 
+        st.write(mspr_bycourse.columns)
+
         # Contract-level aggregation
         mspr_bycontract = mspr_bycourse.drop(columns = ['CRN','TITLE','INSTRUCTOR','NO CONCERNS']).groupby(['STUDENT_ID','TERM']).agg({
                                                            'MSPR_COMPL_IND':'sum',
