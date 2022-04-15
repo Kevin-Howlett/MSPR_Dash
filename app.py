@@ -106,7 +106,7 @@ def main():
     # ======================== #
     # Code to run after all files uploaded and user hit "Run Analysis" button
 
-    if st.session_state['button_pressed'] and mspr_file2 and course_desig_file and scholarships_file and gpa_file and sat_file and tests_file and rank_file:
+    if st.session_state['button_pressed'] and mspr_file and course_desig_file and scholarships_file and gpa_file and sat_file and tests_file and rank_file:
 
         # Munging MSPR data
 
