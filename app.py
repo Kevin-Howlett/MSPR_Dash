@@ -401,7 +401,8 @@ def main():
 
         # Store new dfs for plotting MSPR where completed
         mspr_current = mspr_plotting.loc[(mspr_plotting.MSPR_COMPL_IND == 1) & (mspr_plotting.TERM == current_term)]
-        mspr_old = mspr_plotting.loc[(mspr_plotting.MSPR_COMPL_IND == 1) & (mspr_plotting.TERM != current_term)]
+        if len(mspr_plotting.TERM.unique())>1:
+            mspr_old = mspr_plotting.loc[(mspr_plotting.MSPR_COMPL_IND == 1) & (mspr_plotting.TERM != current_term)]
 
         # Dropping outliers
         treatoutliers(mspr_plotting, columns = ['GPA_HIGH_SCHOOL', 'TOTAL_FUNDS'])
@@ -422,23 +423,25 @@ def main():
 
         # Create dicts for mspr bar charts
 
-        mspr_old_dict = create_mspr_dict(mspr_old)
+        if len(mspr_plotting.TERM.unique())>1:
+            mspr_old_dict = create_mspr_dict(mspr_old)
         mspr_current_dict = create_mspr_dict(mspr_current)
 
         # Plot MSPR bar charts
 
-        mspr_plot_old = px.bar(x=mspr_old_dict.keys(), y=[i for i in mspr_old_dict.values()],
-                text=[round(i,2) for i in mspr_old_dict.values()],
-                labels={
-                    "x": "Indicator",
-                    "y": "Percentage of Students w/ Indicator"
-                },
-                title='MSPR Indicators for Previous Terms',
-                width = 600, height = 500)
+        if len(mspr_plotting.TERM.unique())>1:
+            mspr_plot_old = px.bar(x=mspr_old_dict.keys(), y=[i for i in mspr_old_dict.values()],
+                    text=[round(i,2) for i in mspr_old_dict.values()],
+                    labels={
+                        "x": "Indicator",
+                        "y": "Percentage of Students w/ Indicator"
+                    },
+                    title='MSPR Indicators for Previous Terms',
+                    width = 600, height = 500)
 
-        mspr_plot_old.update_traces(width=0.8)
-        mspr_plot_old.update_xaxes(type='category', categoryorder="total ascending")
-        mspr_plot_old.update_layout(yaxis_ticksuffix = '%')
+            mspr_plot_old.update_traces(width=0.8)
+            mspr_plot_old.update_xaxes(type='category', categoryorder="total ascending")
+            mspr_plot_old.update_layout(yaxis_ticksuffix = '%')
 
 
         mspr_plot = px.bar(x=mspr_current_dict.keys(), y=[i for i in mspr_current_dict.values()],
@@ -460,40 +463,44 @@ def main():
         st.write("## MSPR Features")
 
         # First row of plots
-        col1, col2 = st.columns(2)
+        if len(mspr_plotting.TERM.unique())>1:
+            col1, col2 = st.columns(2)
 
-        col1.header("")
-        col1.plotly_chart(mspr_plot_old, use_column_width=True)
+            col1.header("")
+            col1.plotly_chart(mspr_plot_old, use_column_width=True)
 
-        col2.header("")
-        col2.plotly_chart(mspr_plot, use_column_width=True)
+            col2.header("")
+            col2.plotly_chart(mspr_plot, use_column_width=True)
+        else:
+            st.plotly_chart(mspr_plot)
 
 
         
         # Mspr metrics comparing current term to previous terms
-        st.markdown('#### Metrics for Current Term')
+        if len(mspr_plotting.TERM.unique())>1:
+            st.markdown('#### Metrics for Current Term')
 
-        col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+            col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
-        mspr_metrics = []
-        for k in mspr_current_dict.keys():
-            l = []
-            l.append(k)
-            l.append(mspr_current_dict[k])
-            l.append(mspr_current_dict[k]-mspr_old_dict[k])
-            mspr_metrics.append(l)
+            mspr_metrics = []
+            for k in mspr_current_dict.keys():
+                l = []
+                l.append(k)
+                l.append(mspr_current_dict[k])
+                l.append(mspr_current_dict[k]-mspr_old_dict[k])
+                mspr_metrics.append(l)
 
 
-        cols = [col1, col2, col3, col4, col5, col6, col7]
-        for i in range(len(cols)):
-            if mspr_metrics[i][0] == 'No Concerns':
-                delta_color = 'normal'
-            else:
-                delta_color = 'inverse'
-            cols[i].metric(label=mspr_metrics[i][0], 
-                value=str(round(mspr_metrics[i][1], 1))+"%",
-                delta=str(round(mspr_metrics[i][2], 2)),
-                delta_color=delta_color)
+            cols = [col1, col2, col3, col4, col5, col6, col7]
+            for i in range(len(cols)):
+                if mspr_metrics[i][0] == 'No Concerns':
+                    delta_color = 'normal'
+                else:
+                    delta_color = 'inverse'
+                cols[i].metric(label=mspr_metrics[i][0], 
+                    value=str(round(mspr_metrics[i][1], 1))+"%",
+                    delta=str(round(mspr_metrics[i][2], 2)),
+                    delta_color=delta_color)
 
 
         # Term selector
@@ -544,13 +551,14 @@ def main():
         st.write("### High School GPA")
 
         # Plot GPA over time
-        gpa_time_series = px.line(mspr_time_series_df, y="GPA_HIGH_SCHOOL", x='TERM',
-                 labels={
-                     "GPA_HIGH_SCHOOL": "GPA",
-                     "TERM": "Date"
-                 },
-                title="High School GPA Average Over Time",
-                width = 600, height = 500)
+        if len(mspr_plotting.TERM.unique())>1:
+            gpa_time_series = px.line(mspr_time_series_df, y="GPA_HIGH_SCHOOL", x='TERM',
+                     labels={
+                         "GPA_HIGH_SCHOOL": "GPA",
+                         "TERM": "Date"
+                     },
+                    title="High School GPA Average Over Time",
+                    width = 600, height = 500)
 
         # Plot GPA dist for current term
         gpa_current = px.histogram(mspr_term_level.loc[mspr_term_level.TERM == current_term], x="GPA_HIGH_SCHOOL",
@@ -566,13 +574,16 @@ def main():
 
 
         # Second row of plots
-        col1, col2 = st.columns(2)
+        if len(mspr_plotting.TERM.unique())>1:
+            col1, col2 = st.columns(2)
 
-        col1.header("")
-        col1.plotly_chart(gpa_time_series, use_column_width=True)
+            col1.header("")
+            col1.plotly_chart(gpa_time_series, use_column_width=True)
 
-        col2.header("")
-        col2.plotly_chart(gpa_current, use_column_width=True)
+            col2.header("")
+            col2.plotly_chart(gpa_current, use_column_width=True)
+        else:
+            st.plotly_chart(gpa_current)
 
 
 
@@ -581,14 +592,15 @@ def main():
         st.write("### High School Rank")
 
         # Plot Rank over time
-        rank_time_series = px.line(mspr_time_series_df, y="RANK_PERCENTILE", x='TERM',
-                 labels={
-                     "RANK_PERCENTILE": "Rank Percentile",
-                     "TERM": "Date"
-                 },
-                title="High School Rank Average Over Time",
-                width = 600, height = 500)
-        rank_time_series.update_layout(yaxis_ticksuffix = '%')
+        if len(mspr_plotting.TERM.unique())>1:
+            rank_time_series = px.line(mspr_time_series_df, y="RANK_PERCENTILE", x='TERM',
+                     labels={
+                         "RANK_PERCENTILE": "Rank Percentile",
+                         "TERM": "Date"
+                     },
+                    title="High School Rank Average Over Time",
+                    width = 600, height = 500)
+            rank_time_series.update_layout(yaxis_ticksuffix = '%')
 
         # Plot Rank dist for current term
         rank_current = px.histogram(mspr_term_level.loc[mspr_term_level.TERM == current_term], x="RANK_PERCENTILE",
@@ -605,13 +617,16 @@ def main():
 
 
         # Third row of plots
-        col1, col2 = st.columns(2)
+        if len(mspr_plotting.TERM.unique())>1:
+            col1, col2 = st.columns(2)
 
-        col1.header("")
-        col1.plotly_chart(rank_time_series, use_column_width=True)
+            col1.header("")
+            col1.plotly_chart(rank_time_series, use_column_width=True)
 
-        col2.header("")
-        col2.plotly_chart(rank_current, use_column_width=True)
+            col2.header("")
+            col2.plotly_chart(rank_current, use_column_width=True)
+        else:
+            st.plotly_chart(rank_current)
 
 
 
@@ -621,13 +636,14 @@ def main():
         st.write("### SAT Scores")
 
         # Plot SAT over time
-        sat_time_series = px.line(mspr_time_series_df, y="TEST_SCORE_N", x='TERM',
-                 labels={
-                     "TEST_SCORE_N": "Score",
-                     "TERM": "Date"
-                 },
-                title="SAT Score Average Over Time",
-                width = 600, height = 500)
+        if len(mspr_plotting.TERM.unique())>1:
+            sat_time_series = px.line(mspr_time_series_df, y="TEST_SCORE_N", x='TERM',
+                     labels={
+                         "TEST_SCORE_N": "Score",
+                         "TERM": "Date"
+                     },
+                    title="SAT Score Average Over Time",
+                    width = 600, height = 500)
 
         # Plot SAT dist for current term
         sat_current = px.histogram(mspr_term_level.loc[mspr_term_level.TERM == current_term], x="TEST_SCORE_N",
@@ -643,13 +659,16 @@ def main():
 
 
         # Fourth row of plots
-        col1, col2 = st.columns(2)
+        if len(mspr_plotting.TERM.unique())>1:
+            col1, col2 = st.columns(2)
 
-        col1.header("")
-        col1.plotly_chart(sat_time_series, use_column_width=True)
+            col1.header("")
+            col1.plotly_chart(sat_time_series, use_column_width=True)
 
-        col2.header("")
-        col2.plotly_chart(sat_current, use_column_width=True)
+            col2.header("")
+            col2.plotly_chart(sat_current, use_column_width=True)
+        else:
+            st.plotly_chart(sat_current)
 
 
 
@@ -659,14 +678,15 @@ def main():
         st.write("### Total Scholarships per Student/Term")
 
         # Plot Scholarships over time
-        fund_time_series = px.line(mspr_time_series_df, y="TOTAL_FUNDS", x='TERM',
-                 labels={
-                     "TOTAL_FUNDS": "Scholarship Amount",
-                     "TERM": "Date"
-                 },
-                title="Total Scholarship Average Over Time",
-                width = 600, height = 500)
-        fund_time_series.update_layout(yaxis_tickprefix = '$')
+        if len(mspr_plotting.TERM.unique())>1:
+            fund_time_series = px.line(mspr_time_series_df, y="TOTAL_FUNDS", x='TERM',
+                     labels={
+                         "TOTAL_FUNDS": "Scholarship Amount",
+                         "TERM": "Date"
+                     },
+                    title="Total Scholarship Average Over Time",
+                    width = 600, height = 500)
+            fund_time_series.update_layout(yaxis_tickprefix = '$')
 
         # Plot Scholarship dist for current term
         fund_current = px.histogram(mspr_term_level.loc[mspr_term_level.TERM == current_term], x="TOTAL_FUNDS",
@@ -683,13 +703,16 @@ def main():
 
 
         # Fifth row of plots
-        col1, col2 = st.columns(2)
+        if len(mspr_plotting.TERM.unique())>1:
+            col1, col2 = st.columns(2)
 
-        col1.header("")
-        col1.plotly_chart(fund_time_series, use_column_width=True)
+            col1.header("")
+            col1.plotly_chart(fund_time_series, use_column_width=True)
 
-        col2.header("")
-        col2.plotly_chart(fund_current, use_column_width=True)
+            col2.header("")
+            col2.plotly_chart(fund_current, use_column_width=True)
+        else:
+            st.plotly_chart(fund_current)
 
 
 
