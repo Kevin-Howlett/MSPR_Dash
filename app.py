@@ -858,13 +858,13 @@ def treatoutliers(df, columns=None, factor=1.5, method='IQR', treament='cap'):
 
 def create_mspr_dict(df):
     my_dict = dict()
-    my_dict["Has Concern(s)"] = 100-(df['NO CONCERNS'].value_counts() / len(df))[1]*100
     my_dict["Low Attendance"] = (df['ATTENDANCE'].value_counts() / len(df))[1]*100
     my_dict["Low Particpation"] = (df['LOW PARTICIPATION'].value_counts() / len(df))[1]*100
     my_dict["Late/Missing Assignments"] = (df['LATE/MISSING ASSIGNMENTS'].value_counts() / len(df))[1]*100
     my_dict["Other Assignment Concerns"] = (df['OTHER ASSIGNMENTS CONCERNS'].value_counts() / len(df))[1]*100
     my_dict["Low Test Scores"] = (df['LOW TEST SCORES'].value_counts() / len(df))[1]*100
     my_dict["Danger of Unsatting"] = (df['DANGER of UNSATING'].value_counts() / len(df))[1]*100
+    my_dict["Has Concern(s)"] = 100-(df['NO CONCERNS'].value_counts() / len(df))[1]*100
     #mspr_dict["MSPR Completed"] = (mspr_compl['MSPR_COMPL_IND'].value_counts() / len(mspr_compl))[1]*100
     return my_dict
 
