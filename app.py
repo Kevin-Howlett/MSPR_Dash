@@ -352,7 +352,6 @@ def main():
 
         mspr_bycourse = mspr[features]
 
-        st.write(mspr_bycourse.columns)
 
         # Contract-level aggregation
         mspr_bycontract = mspr_bycourse.drop(columns = ['CRN','TITLE','INSTRUCTOR','NO CONCERNS']).groupby(['STUDENT_ID','TERM']).agg({
@@ -398,7 +397,7 @@ def main():
 
         # Store variable with current term
         current_term = mspr_plotting.TERM.max()
-        st.write(current_term)
+
 
         # Store new dfs for plotting MSPR where completed
         mspr_current = mspr_plotting.loc[(mspr_plotting.MSPR_COMPL_IND == 1) & (mspr_plotting.TERM == current_term)]
@@ -407,8 +406,6 @@ def main():
         # Dropping outliers
         treatoutliers(mspr_plotting, columns = ['GPA_HIGH_SCHOOL', 'TOTAL_FUNDS'])
 
-        st.write(mspr_plotting)
-        st.write(mspr_old)
 
 
         #st.write(mspr_plotting)
