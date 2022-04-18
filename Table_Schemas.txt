@@ -27,20 +27,11 @@
 "ACAD_HIST_GRDE_DESC"
 ```
 
-### `Scholarship`
+### `AP-IB-AICE`
 
 ```
-"TermCode"
-"SPRIDEN_ID"
-"Accept_Date"
-"FORMATTED_PAID_AMT"
-```
-
-### `GPA`
-
-```
-"SPRIDEN_ID"
-"GPA_HIGH_SCHOOL"
+"ID"
+"SWVLACC_CLASS_TITLE"
 ```
 
 ### `SAT/ACT`
@@ -51,11 +42,11 @@
 "TEST_SCORE_N"
 ```
 
-### `AP-IB-AICE`
+### `GPA`
 
 ```
-"ID"
-"SWVLACC_CLASS_TITLE"
+"SPRIDEN_ID"
+"GPA_HIGH_SCHOOL"
 ```
 
 ### `HS Rank`
@@ -64,4 +55,13 @@
 "SPRIDEN_ID"
 "SORHSCH_CLASS_RANK"
 "SORHSCH_CLASS_SIZE"
+```
+
+### `Scholarship`
+
+```
+"TermCode"
+"SPRIDEN_ID"
+"Accept_Date"
+"FORMATTED_PAID_AMT"
 ```
