@@ -45,51 +45,80 @@ def main():
     st.sidebar.title("Data Upload")
 
     
+    files_read_in = dict()
+
     # File uploaders
     mspr_file = st.sidebar.file_uploader("Upload MSPR file:", key=1)
     if mspr_file:
          # Can be used wherever a "file-like" object is accepted:
          mspr = load_data(mspr_file)
-         #st.write(dataframe)
+         files_read_in['MSPR'] = mspr.columns
 
     course_desig_file = st.sidebar.file_uploader("Upload Course Designations file:", key=2)
     if course_desig_file:
          # Can be used wherever a "file-like" object is accepted:
          course_desig = load_data(course_desig_file)
-         #st.write(dataframe)
+         files_read_in['Course Designations'] = course_desig.columns
 
-    scholarships_file = st.sidebar.file_uploader("Upload Scholarships file:", key=3)
-    if scholarships_file:
-         # Can be used wherever a "file-like" object is accepted:
-         scholarships = load_data(scholarships_file)
-         #st.write(dataframe)
-
-    gpa_file = st.sidebar.file_uploader("Upload GPAs file:", key=4)
-    if gpa_file:
-         # Can be used wherever a "file-like" object is accepted:
-         gpas = load_data(gpa_file)
-         #st.write(dataframe)
-
-    sat_file = st.sidebar.file_uploader("Upload SAT/ACT file:", key=5)
-    if sat_file:
-         # Can be used wherever a "file-like" object is accepted:
-         sat_act = load_data(sat_file)
-         #st.write(dataframe)
-
-    tests_file = st.sidebar.file_uploader("Upload AP-IB-AICE file:", key=6)
+    tests_file = st.sidebar.file_uploader("Upload AP-IB-AICE file:", key=3)
     if tests_file:
          # Can be used wherever a "file-like" object is accepted:
          tests = load_data(tests_file)
-         #st.write(dataframe)
+         files_read_in['AP/IB/AICE'] = tests.columns
 
-    rank_file = st.sidebar.file_uploader("Upload HS Ranks file:", key=7)
+    sat_file = st.sidebar.file_uploader("Upload SAT/ACT file:", key=4)
+    if sat_file:
+         # Can be used wherever a "file-like" object is accepted:
+         sat_act = load_data(sat_file)
+         files_read_in['SAT/ACT'] = sat_act.columns
+
+    gpa_file = st.sidebar.file_uploader("Upload GPAs file:", key=5)
+    if gpa_file:
+         # Can be used wherever a "file-like" object is accepted:
+         gpas = load_data(gpa_file)
+         files_read_in['GPA'] = gpas.columns
+
+    rank_file = st.sidebar.file_uploader("Upload HS Ranks file:", key=6)
     if rank_file:
          # Can be used wherever a "file-like" object is accepted:
          rank = load_data(rank_file)
-         #st.write(dataframe)
+         files_read_in['Rank'] = rank.columns
+
+    scholarships_file = st.sidebar.file_uploader("Upload Scholarships file:", key=7)
+    if scholarships_file:
+         # Can be used wherever a "file-like" object is accepted:
+         scholarships = load_data(scholarships_file)
+         files_read_in['Scholarships'] = scholarships.columns
+
+
+    # ========================== #
+
+    # Dict of needed columns to check if user inputted all necessary columns
+
+    cols_needed = dict()
+
+    cols_needed['MSPR'] = ['ID','TERM','CRN','MSPR_COMPL_IND','NO CONCERNS',
+                   'ATTENDANCE','LOW PARTICIPATION','LATE/MISSING ASSIGNMENTS',
+                   'OTHER ASSIGNMENTS CONCERNS','LOW TEST SCORES',
+                   'DANGER of UNSATING','CRITERIA']
+
+    cols_needed['Course Designations'] = ['SQ_COUNT_STUDENT_ID','TERM','CRN','CRS_NUMB',
+                           'CRS_DIVS_DESC','ACAD_HIST_GRDE_DESC']
+
+    cols_needed['AP/IB/AICE'] = ['ID','SWVLACC_CLASS_TITLE']
+
+    cols_needed['SAT/ACT'] = ['ID','DEMO_TIME_FRAME','TEST_SCORE_N']
+
+    cols_needed['GPA'] = ['SPRIDEN_ID','GPA_HIGH_SCHOOL']
+
+    cols_needed['Rank'] = ['SPRIDEN_ID','SORHSCH_CLASS_RANK','SORHSCH_CLASS_SIZE']
+
+    cols_needed['Scholarships'] = ['SPRIDEN_ID','TermCode','Accept_Date','FORMATTED_PAID_AMT']
 
 
 
+
+    # ========================== #
 
     # Analysis button
     run_analysis = st.sidebar.button('Run analysis')
@@ -97,17 +126,41 @@ def main():
     if run_analysis:
         st.session_state.button_pressed = True
 
+    # Write the dataset upload schema if any file is not uploaded
+    # or the "run analysis" button is not pressed
     if not mspr_file or not course_desig_file or not scholarships_file or not gpa_file or not sat_file or not tests_file or not rank_file or not run_analysis:
-        st.markdown("### Text describing dataset schemas/formats will go here")
+        st.markdown("### Dataset Upload Schemas")
+        st.markdown('''Please upload the following datasets, with at least the 
+            specified columns (Note: Spelling, spacing, and capitalization is important).''')
         table_schemas = open("Table_Schemas.txt", "r")
         st.markdown(table_schemas.read())
-        st.markdown("blahblahblahblah")
-
 
     # ======================== #
+
+
+    missing_cols = False
+
+    # Check for missing columns from data upload
+    if st.session_state['button_pressed']:
+        for k in files_read_in.keys(): # Iterate thru each dataset
+            missing_col_list = []
+            for col in cols_needed[k]: # Iterate thru each col in dataset
+                if col not in files_read_in[k]: # Check if needed col not in file
+                    missing_col_list.append(col) 
+                    missing_cols = True
+            if len(missing_col_list) > 0:
+                st.markdown('#### Columns missing from '+str(k)+':')
+                st.markdown(missing_col_list)
+
+
+
+
+
+    # =============================================== #
+
     # Code to run after all files uploaded and user hit "Run Analysis" button
 
-    if st.session_state['button_pressed'] and mspr_file and course_desig_file and scholarships_file and gpa_file and sat_file and tests_file and rank_file:
+    if st.session_state['button_pressed'] and mspr_file and course_desig_file and scholarships_file and gpa_file and sat_file and tests_file and rank_file and missing_cols=False:
 
         # Munging MSPR data
 
@@ -377,6 +430,7 @@ def main():
                                                             'DIVS_Other':'sum',
                                                             'DIVS_Social_Sciences':'sum',                                                    
                                                                                                      }).reset_index()
+
 
 
 
