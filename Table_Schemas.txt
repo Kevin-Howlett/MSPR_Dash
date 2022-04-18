@@ -30,15 +30,15 @@
 ### `AP-IB-AICE`
 
 ```
-"ID"
+"SPRIDEN_ID"
 "SWVLACC_CLASS_TITLE"
 ```
 
 ### `SAT/ACT`
 
 ```
+"SPRIDEN_ID"
 "DEMO_TIME_FRAME"
-"ID"
 "TEST_SCORE_N"
 ```
 
@@ -60,8 +60,8 @@
 ### `Scholarship`
 
 ```
-"TermCode"
 "SPRIDEN_ID"
+"TermCode"
 "Accept_Date"
 "FORMATTED_PAID_AMT"
 ```
