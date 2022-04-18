@@ -105,9 +105,9 @@ def main():
     cols_needed['Course Designations'] = ['SQ_COUNT_STUDENT_ID','TERM','CRN','CRS_NUMB',
                            'CRS_DIVS_DESC','ACAD_HIST_GRDE_DESC']
 
-    cols_needed['AP/IB/AICE'] = ['ID','SWVLACC_CLASS_TITLE']
+    cols_needed['AP/IB/AICE'] = ['SPRIDEN_ID','SWVLACC_CLASS_TITLE']
 
-    cols_needed['SAT/ACT'] = ['ID','DEMO_TIME_FRAME','TEST_SCORE_N']
+    cols_needed['SAT/ACT'] = ['SPRIDEN_ID','DEMO_TIME_FRAME','TEST_SCORE_N']
 
     cols_needed['GPA'] = ['SPRIDEN_ID','GPA_HIGH_SCHOOL']
 
