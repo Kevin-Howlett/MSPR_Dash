@@ -30,15 +30,15 @@ Course Designations
 AP/IB/AICE
 
 	{
-		"ID"
+		"SPRIDEN_ID"
 		"SWVLACC_CLASS_TITLE"
 	}
 
 SAT/ACT
 
 	{
+		"SPRIDEN_ID"
 		"DEMO_TIME_FRAME"
-		"ID"
 		"TEST_SCORE_N"
 	}
 
