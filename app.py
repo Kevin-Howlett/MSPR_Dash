@@ -126,21 +126,12 @@ def main():
     if run_analysis:
         st.session_state.button_pressed = True
 
-    # Write the dataset upload schema if any file is not uploaded
-    # or the "run analysis" button is not pressed
-    if not mspr_file or not course_desig_file or not scholarships_file or not gpa_file or not sat_file or not tests_file or not rank_file or not run_analysis:
-        st.markdown("### Dataset Upload Schemas")
-        st.markdown('''Please upload the following datasets, with at least the 
-            specified columns (Note: Spelling, spacing, and capitalization is important).''')
-        table_schemas = open("Table_Schemas.txt", "r")
-        st.markdown(table_schemas.read())
+    # ========================= #
 
-    # ======================== #
-
+    # Check for missing columns from data upload
 
     missing_cols = False
 
-    # Check for missing columns from data upload
     if st.session_state['button_pressed']:
         for k in files_read_in.keys(): # Iterate thru each dataset
             missing_col_list = []
@@ -151,6 +142,19 @@ def main():
             if len(missing_col_list) > 0:
                 st.markdown('#### Columns missing from '+str(k)+':')
                 st.markdown(missing_col_list)
+                st.markdown('Please add these columns to the respective dataset.')
+
+    # ========================= #
+
+    # Write the dataset upload schema if any file is not uploaded
+    # or the "run analysis" button is not pressed
+    if not mspr_file or not course_desig_file or not scholarships_file or not gpa_file or not sat_file or not tests_file or not rank_file or not run_analysis:
+        st.markdown("### Dataset Upload Schemas")
+        st.markdown('''Please upload the following datasets, with at least the 
+            specified columns (Note: Spelling, spacing, and capitalization is important).''')
+        table_schemas = open("Table_Schemas.txt", "r")
+        st.markdown(table_schemas.read())
+
 
 
 
