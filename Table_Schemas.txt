@@ -1,67 +1,67 @@
-MSPR
-	
-	{
-		"ID"
-		"TERM"
-		"CRN"
-		"MSPR_COMPL_IND"
-		"NO CONCERNS"
-		"ATTENDANCE"
-		"LOW PARTICIPATION"
-		"LATE/MISSING ASSIGNMENTS"
-		"OTHER ASSIGNMENTS CONCERNS"
-		"LOW TEST SCORES"
-		"DANGER of UNSATING"
-		"CRITERIA"
-	}
+### `MSPR`
+
+```html
+"ID"
+"TERM"
+"CRN"
+"MSPR_COMPL_IND"
+"NO CONCERNS"
+"ATTENDANCE"
+"LOW PARTICIPATION"
+"LATE/MISSING ASSIGNMENTS"
+"OTHER ASSIGNMENTS CONCERNS"
+"LOW TEST SCORES"
+"DANGER of UNSATING"
+"CRITERIA"
+```
 
 
-Course Designations
+### `Course Designation`
 
-	{
-		"SQ_COUNT_STUDENT_ID"
-		"TERM"
-		"CRN"
-		"CRS_NUMB"
-		"CRS_DIVS_DESC"
-		"ACAD_HIST_GRDE_DESC"
-	}
+```
+"SQ_COUNT_STUDENT_ID"
+"TERM"
+"CRN"
+"CRS_NUMB"
+"CRS_DIVS_DESC"
+"ACAD_HIST_GRDE_DESC"
+```
 
-AP/IB/AICE
+### `Scholarship`
 
-	{
-		"ID"
-		"SWVLACC_CLASS_TITLE"
-	}
+```
+"TermCode"
+"SPRIDEN_ID"
+"Accept_Date"
+"FORMATTED_PAID_AMT"
+```
 
-SAT/ACT
+### `GPA`
 
-	{
-		"DEMO_TIME_FRAME"
-		"ID"
-		"TEST_SCORE_N"
-	}
+```
+"SPRIDEN_ID"
+"GPA_HIGH_SCHOOL"
+```
 
-GPA
+### `SAT/ACT`
 
-	{
-		"SPRIDEN_ID"
-		"GPA_HIGH_SCHOOL"
-	}
+```
+"DEMO_TIME_FRAME"
+"ID"
+"TEST_SCORE_N"
+```
 
-Rank
+### `AP-IB-AICE`
 
-	{
-		"SPRIDEN_ID"
-		"SORHSCH_CLASS_RANK"
-		"SORHSCH_CLASS_SIZE"
-	}
+```
+"ID"
+"SWVLACC_CLASS_TITLE"
+```
 
-Scholarships
+### `HS Rank`
 
-	{
-		"TermCode"
-		"SPRIDEN_ID"
-		"Accept_Date"
-		"FORMATTED_PAID_AMT"
-	}
+```
+"SPRIDEN_ID"
+"SORHSCH_CLASS_RANK"
+"SORHSCH_CLASS_SIZE"
+```
