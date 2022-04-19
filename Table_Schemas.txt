@@ -1,67 +1,66 @@
 ### `MSPR`
 
-```html
-"ID"
-"TERM"
-"CRN"
-"MSPR_COMPL_IND"
-"NO CONCERNS"
+```
+"ID" : N-Number
+"TERM" : 201808
+"CRN" : 81127
+"MSPR_COMPL_IND" : binary flag "Y" or "" (empty string)
+"NO CONCERNS" :
 "ATTENDANCE"
 "LOW PARTICIPATION"
 "LATE/MISSING ASSIGNMENTS"
 "OTHER ASSIGNMENTS CONCERNS"
 "LOW TEST SCORES"
 "DANGER of UNSATING"
-"CRITERIA"
+"CRITERIA" : string containing fraction for satting contract (eg. "4/5" or "3/4")
 ```
 
 
 ### `Course Designation`
 
 ```
-"SQ_COUNT_STUDENT_ID"
-"TERM"
-"CRN"
-"CRS_NUMB"
-"CRS_DIVS_DESC"
-"ACAD_HIST_GRDE_DESC"
+"SQ_COUNT_STUDENT_ID" : N-Number
+"TERM" : 201808
+"CRN" : 81127
+"CRS_NUMB" : 2250 (used to derive course level)
+"CRS_DIVS_DESC" : Course Division (eg. Natural Science, Humanities, etc.)
 ```
 
 ### `AP-IB-AICE`
 
 ```
-"SPRIDEN_ID"
-"SWVLACC_CLASS_TITLE"
+"SPRIDEN_ID" : N-Number
+"SWVLACC_CLASS_TITLE" : Name of Course (eg. AP Psychology, IB HL Biology)
 ```
 
 ### `SAT/ACT`
 
 ```
-"SPRIDEN_ID"
-"DEMO_TIME_FRAME"
-"TEST_SCORE_N"
+"SPRIDEN_ID" : N-Number
+"DEMO_TIME_FRAME" : 201808
+"TEST_SCORE_N" : Student's score on given section of test
 ```
 
 ### `GPA`
 
 ```
-"SPRIDEN_ID"
-"GPA_HIGH_SCHOOL"
+"SPRIDEN_ID" : N-Number
+"GPA_HIGH_SCHOOL" : High School GPA (already on NCF scale)
 ```
 
 ### `HS Rank`
 
 ```
-"SPRIDEN_ID"
-"SORHSCH_CLASS_RANK"
-"SORHSCH_CLASS_SIZE"
+"SPRIDEN_ID" : N-Number
+"SORHSCH_CLASS_RANK" : Student's ranking within their high school graduating class
+"SORHSCH_CLASS_SIZE" : Student's high school graduating class size
 ```
 
 ### `Scholarship`
 
 ```
-"SPRIDEN_ID"
-"TermCode"
-"Accept_Date"
-"FORMATTED_PAID_AMT"
+"SPRIDEN_ID" : N-Number
+"TermCode" : 201808
+"Accept_Date" : Date student accepted scholarship offer (eg. 8/7/2018)
+"FORMATTED_PAID_AMT" : Scholarship offer amount (eg. 10029)
 ```
