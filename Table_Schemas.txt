@@ -2,16 +2,16 @@
 
 ```
 "ID" : N-Number
-"TERM" : 201808
-"CRN" : 81127
+"TERM" : Term assessed, formatted as numeric year + month (eg. Fall 2018 -> 201808)
+"CRN" : Course Registration Number 
 "MSPR_COMPL_IND" : binary flag "Y" or "" (empty string)
-"NO CONCERNS" :
-"ATTENDANCE"
-"LOW PARTICIPATION"
-"LATE/MISSING ASSIGNMENTS"
-"OTHER ASSIGNMENTS CONCERNS"
-"LOW TEST SCORES"
-"DANGER of UNSATING"
+"NO CONCERNS" : binary flag "Y" or "" (empty string)
+"ATTENDANCE" :  binary flag "Y" or "" (empty string)
+"LOW PARTICIPATION" :  binary flag "Y" or "" (empty string)
+"LATE/MISSING ASSIGNMENTS" :  binary flag "Y" or "" (empty string)
+"OTHER ASSIGNMENTS CONCERNS" :  binary flag "Y" or "" (empty string)
+"LOW TEST SCORES" :  binary flag "Y" or "" (empty string)
+"DANGER of UNSATING" :  binary flag "Y" or "" (empty string)
 "CRITERIA" : string containing fraction for satting contract (eg. "4/5" or "3/4")
 ```
 
@@ -20,9 +20,9 @@
 
 ```
 "SQ_COUNT_STUDENT_ID" : N-Number
-"TERM" : 201808
-"CRN" : 81127
-"CRS_NUMB" : 2250 (used to derive course level)
+"TERM" : Term assessed, formatted as numeric year + month (eg. Fall 2018 -> 201808)
+"CRN" : Course Registration Number
+"CRS_NUMB" : Course Number (eg. 2250) (used to derive course level)
 "CRS_DIVS_DESC" : Course Division (eg. Natural Science, Humanities, etc.)
 ```
 
@@ -37,7 +37,7 @@
 
 ```
 "SPRIDEN_ID" : N-Number
-"DEMO_TIME_FRAME" : 201808
+"DEMO_TIME_FRAME" : Term assessed, formatted as numeric year + month (eg. Fall 2018 -> 201808)
 "TEST_SCORE_N" : Student's score on given section of test
 ```
 
@@ -60,7 +60,7 @@
 
 ```
 "SPRIDEN_ID" : N-Number
-"TermCode" : 201808
+"TermCode" : Term assessed, formatted as numeric year + month (eg. Fall 2018 -> 201808)
 "Accept_Date" : Date student accepted scholarship offer (eg. 8/7/2018)
 "FORMATTED_PAID_AMT" : Scholarship offer amount (eg. 10029)
 ```
