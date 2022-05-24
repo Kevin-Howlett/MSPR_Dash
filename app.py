@@ -855,6 +855,15 @@ def main():
         mspr_course_ids = mspr_course_ids.sort_values(by='Prob of Unsat', ascending=False)
         mspr_contract_ids = mspr_contract_ids.sort_values(by='Prob of Unsat', ascending=False)
 
+        # Remove this block
+        # ======================= #
+        
+        mspr_course_ids['STUDENT_ID'] = "Nxxxxxxxx"
+        mspr_course_ids['CRN'] = "12345"
+        mspr_course_ids['INSTRUCTOR'] = "John Doe"
+        mspr_contract_ids['STUDENT_ID'] = "Nxxxxxxxx"
+        
+        # ======================= #
 
         col1, col2 = st.columns(2)
 
