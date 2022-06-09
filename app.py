@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import sys
 import re
+from io import StringIO
 import numpy as np
 import pandas as pd
 import pickle
@@ -128,7 +129,7 @@ def main():
          files_read_in['HS Rank'] = rank.columns
 
     # Course designations
-    google_dist_file = st.sidebar.file_uploader("Upload HS Rank file:", key=10)
+    google_dist_file = st.sidebar.file_uploader("Upload Distances from NCF file:", key=10)
     if google_dist_file:
          # Can be used wherever a "file-like" object is accepted:
          google_dist = load_data(google_dist_file)
@@ -228,17 +229,17 @@ def main():
 
     missing_cols = False
 
-    if st.session_state['button_pressed']:
-        for k in files_read_in.keys(): # Iterate thru each dataset
-            missing_col_list = []
-            for col in cols_needed[k]: # Iterate thru each col in dataset
-                if col not in files_read_in[k]: # Check if needed col not in file
-                    missing_col_list.append(col) 
-                    missing_cols = True
-            if len(missing_col_list) > 0:
-                st.markdown('#### Columns missing from '+str(k)+':')
-                st.markdown(missing_col_list)
-                st.markdown('Please add these columns to the respective dataset.')
+    # if st.session_state['button_pressed']:
+    #     for k in files_read_in.keys(): # Iterate thru each dataset
+    #         missing_col_list = []
+    #         for col in cols_needed[k]: # Iterate thru each col in dataset
+    #             if col not in files_read_in[k]: # Check if needed col not in file
+    #                 missing_col_list.append(col) 
+    #                 missing_cols = True
+    #         if len(missing_col_list) > 0:
+    #             st.markdown('#### Columns missing from '+str(k)+':')
+    #             st.markdown(missing_col_list)
+    #             st.markdown('Please add these columns to the respective dataset.')
 
     # ========================= #
 
@@ -266,7 +267,9 @@ def main():
     if st.session_state['button_pressed'] and retention_file and course_desig_file and sat_file and act_file or not gpa_file or not col_gpa_file or not scholarships_file and tests_file and rank_file and google_dist_file and zips_file and residency_file and income_file and parent_edu_file and missing_cols==False and st.session_state['option']=='First term':
         # Generate and store munged features
         # on which to run model
-        retention = prepare_retention(retention)
+        retention = prepare_retention(retention, sat, act, col_gpa, gpa, tests, 
+                        google_dist, residency, rank, zips, scholarships, course_desig,
+                        income, parent_edu, sap=None)
 
         munged_df = prepare_first_term(retention)
         
@@ -303,7 +306,9 @@ def main():
     elif st.session_state['button_pressed'] and retention_file and course_desig_file and sat_file and act_file or not gpa_file or not col_gpa_file or not scholarships_file and tests_file and rank_file and google_dist_file and zips_file and residency_file and income_file and parent_edu_file and missing_cols==False and st.session_state['option']=='Second term (first year)':
         # Generate and store munged features
         # on which to run model
-        retention = prepare_retention(retention)
+        retention = prepare_retention(retention, sat, act, col_gpa, gpa, tests, 
+                        google_dist, residency, rank, zips, scholarships, course_desig,
+                        income, parent_edu, sap)
 
         munged_df = prepare_full_year(retention)
         
@@ -356,13 +361,15 @@ def main():
 # FUNCTIONS
 
 def load_data(file_uploaded):
-    if file_uploaded.name.split('.')[1] == 'csv':
+    if file_uploaded.name.rsplit('.', 1)[1] == 'csv':
         return pd.read_csv(file_uploaded, sep=',', encoding='utf-8')
     else:
         return pd.read_excel(file_uploaded)
 
 
-def prepare_retention(retention):
+def prepare_retention(retention, sat, act, col_gpa, gpa, tests, 
+    google_dist, residency, rank, zips, scholarships, course_desig,
+    income, parent_edu, sap=None):
     retention.ADMIT_TERM = retention.ADMIT_TERM.astype(int)
 
     # Filter out second baccalaureate students
@@ -405,15 +412,15 @@ def prepare_retention(retention):
     # Merge county data
     current_path = os.getcwd()
 
-    county_zip_path = os.path.join(current_path, 'static/data/COUNTY_ZIP.csv')
+    county_zip_path = os.path.join(current_path, 'data/COUNTY_ZIP.csv')
     with open(county_zip_path, 'rb') as handle:
         county_zip = pd.read_csv(handle)
 
-    education_path = os.path.join(education_path, 'static/data/Education.csv')
+    education_path = os.path.join(current_path, 'data/Education.csv')
     with open(education_path, 'rb') as handle:
         education = pd.read_csv(handle)
 
-    unemployment_path = os.path.join(unemployment_path, 'static/data/Unemployment.xlsx')
+    unemployment_path = os.path.join(current_path, 'data/Unemployment.xlsx')
     with open(unemployment_path, 'rb') as handle:
         unemployment = pd.read_excel(handle)
 
@@ -469,7 +476,7 @@ def prepare_retention(retention):
     parent_edu = prepare_parent_edu(parent_edu)
     retention = retention.merge(parent_edu, how='left', left_on='N_NUMBER', right_on='SPRIDEN_ID').drop(columns='SPRIDEN_ID')
 
-    if term == 'Second term (first year)':
+    if sap!=None:
         # Merge SAP
         sap = prepare_sap(sap)
         retention = pd.merge(retention, sap[['TERM','N_NUMBER','SAP_GOOD']], how = 'left', left_on = ['N_NUMBER', 'NEXT_TERM'], right_on = ['N_NUMBER', 'TERM']).rename(columns={'SAPCODE':'SAP_NEXT_TERM'}).drop(columns='TERM')
